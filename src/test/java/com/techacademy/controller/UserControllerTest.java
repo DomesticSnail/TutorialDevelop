@@ -7,6 +7,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +38,6 @@ class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        // Spring Securityを有効にする
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity()).build();
@@ -46,18 +47,44 @@ class UserControllerTest {
     @DisplayName("User更新画面")
     @WithMockUser
     void testGetUser() throws Exception {
-        // HTTPリクエストに対するレスポンスの検証
-        MvcResult result = mockMvc.perform(get("/user/update/1/")) // URLにアクセス
-            .andExpect(status().isOk()) // ステータスを確認
-            .andExpect(model().attributeExists("user")) // Modelの内容を確認
-            .andExpect(model().hasNoErrors()) // Modelのエラー有無の確認
-            .andExpect(view().name("user/update")) // viewの確認
-            .andReturn(); // 内容の取得
+        MvcResult result = mockMvc.perform(get("/user/update/1/"))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("user"))
+            .andExpect(model().hasNoErrors())
+            .andExpect(view().name("user/update"))
+            .andReturn();
 
-        // userの検証
-        // Modelからuserを取り出す
         User user = (User)result.getModelAndView().getModel().get("user");
         assertEquals(1, user.getId());
         assertEquals("キラメキ太郎", user.getName());
+    }
+
+    @Test
+    @DisplayName("List Display")
+    @WithMockUser
+    void testGetList() throws Exception {
+        MvcResult result = mockMvc.perform(get("/user/list"))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("userlist"))
+            .andExpect(model().hasNoErrors())
+            .andExpect(view().name("user/list"))
+            .andReturn();
+
+        @SuppressWarnings("unchecked")
+        List<User> userList = (List<User>) result.getModelAndView().getModel().get("userlist");
+
+        assertEquals(3, userList.size(), "The userlist should contain 3 users.");
+
+        User user1 = userList.get(0);
+        assertEquals(1, user1.getId(), "User 1 ID should be 1");
+        assertEquals("キラメキ太郎", user1.getName(), "User 1 name should be 'キラメキ太郎'");
+
+        User user2 = userList.get(1);
+        assertEquals(2, user2.getId(), "User 2 ID should be 2");
+        assertEquals("キラメキ次郎", user2.getName(), "User 2 name should be 'キラメキ次郎'");
+
+        User user3 = userList.get(2);
+        assertEquals(3, user3.getId(), "User 3 ID should be 3");
+        assertEquals("キラメキ花子", user3.getName(), "User 3 name should be 'キラメキ花子'");
     }
 }

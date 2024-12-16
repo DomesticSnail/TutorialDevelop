@@ -5,3 +5,13 @@ label {
     width: 8em;
     line-height: 150%;
 }
+
+input.error,
+select.error {
+    color: red;
+}
+
+div {
+    color: red;
+    display: inline-block;
+}
