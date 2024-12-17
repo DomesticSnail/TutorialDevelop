@@ -67,14 +67,15 @@ public class UserController {
         return "user/update";
     }
 
-    /** User更新処理 */
     @PostMapping("/update/{id}/")
     public String postUser(@PathVariable("id") Integer id, @Validated User user, BindingResult res, Model model) {
         if(res.hasErrors()) {
-            model.addAttribute("user", user);
-            return "user/update";
+            // エラーあり
+            return getUser(id, model);
         }
+        // User登録
         service.saveUser(user);
+        // 一覧画面にリダイレクト
         return "redirect:/user/list";
     }
 
